@@ -1,0 +1,45 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<link type="text/css" href="css/bootstrap.css" rel="stylesheet" />
+<link type="text/css" href="css/lucene.css" rel="stylesheet" />
+
+
+<div id="container">
+
+    <div id="header">
+        <h1>Lucene bank account analyser</h1>
+        <button type="button" id="indexer-button" class="btn-large btn-success" aria-label="Left Align">
+            Index all files
+        </button>
+
+        <br/>
+        <br/>
+
+        <textarea id="query" ></textarea>
+        <button type="button" id="searcher-button" class="btn-large btn-success" aria-label="Left Align">
+            SEARCH
+        </button>
+
+
+    </div>
+
+    <div id="searching-response">
+
+        <h1>Searching response</h1>
+        <table id="response-table" style="width:100%">
+        </table>
+    </div>
+
+    <div id="footer">
+        <p>Createur : Manuel Briot</p>
+    </div>
+
+</div>
+
+<script type="text/javascript" src="js/bootstrap.js"></script>
+<script type="text/javascript" src="js/lucene.js"></script>
+
+</body>
+</html>
