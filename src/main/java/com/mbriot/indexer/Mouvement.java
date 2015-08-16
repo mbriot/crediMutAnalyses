@@ -152,7 +152,7 @@ public class Mouvement {
     @Override
     public String toString() {
         return "Mouvement{" +
-                ", date=" + date +
+                "date=" + date +
                 ", mouvementType='" + mouvementType + '\'' +
                 ", montant=" + montant + '\'' +
                 ", mouvementDescription=" + mouvementDescription +

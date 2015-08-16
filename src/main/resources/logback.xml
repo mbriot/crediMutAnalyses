@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+    <appender name="minuteRollingFileAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <FileNamePattern>/Users/manu/Desktop/creditMutDocuments/application.%d{yyyy-MM-dd_HH-mm}.log</FileNamePattern>
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+
+        <encoder>
+            <Pattern>%-4relative [%thread] %-5level %logger{35} - %msg %n</Pattern>
+        </encoder>
+    </appender>
+
+    <root level="INFO">
+        <appender-ref ref="minuteRollingFileAppender" />
+    </root>
+
+    <logger name="com.mbriot">
+        <level value="DEBUG" />
+        <appender-ref ref="minuteRollingFileAppender"/>
+    </logger>
+</configuration>

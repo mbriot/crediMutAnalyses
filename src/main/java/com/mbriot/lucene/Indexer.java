@@ -6,18 +6,24 @@ import com.mbriot.utils.FieldName;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
+import org.apache.lucene.document.DoubleField;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.FieldType;
+import org.apache.lucene.index.DocValuesType;
 import org.apache.lucene.index.IndexOptions;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.List;
 
 public class Indexer {
+    static final Logger LOG = LoggerFactory.getLogger(Indexer.class);
 
     private String pathToIndex;
 
@@ -26,11 +32,11 @@ public class Indexer {
         IndexWriter writer = null;
         try{
             Directory dir = FSDirectory.open(Paths.get(pathToIndex));
-            Analyzer analyzer = new StandardAnalyzer();
-            IndexWriterConfig iwc = new IndexWriterConfig(analyzer);
+            IndexWriterConfig iwc = new IndexWriterConfig(new StandardAnalyzer());
             iwc.setOpenMode(IndexWriterConfig.OpenMode.CREATE);
             writer = new IndexWriter(dir, iwc);
             for(Mouvement mouvement : mouvements){
+                LOG.debug("indexing mouvement : " + mouvement.toString());
                 indexDocs(writer, mouvement);
             }
         } catch (IOException io){
@@ -51,7 +57,6 @@ public class Indexer {
         fieldType.setIndexOptions(IndexOptions.DOCS);
         fieldType.setStored(true);
 
-
         if(mouvement.getMouvementType() != null){
             Field mvtType = new Field(FieldName.TYPE,parse(mouvement.getMouvementType()),fieldType);
             doc.add(mvtType);
@@ -67,11 +72,11 @@ public class Indexer {
             doc.add(date);
         }
         if(mouvement.getMontant() > 0 || mouvement.getMontant() < 0){
-            Field montant = new Field(FieldName.MONTANT,String.valueOf(mouvement.getMontant()),fieldType);
-            doc.add(montant);
+            doc.add(new DoubleField(FieldName.MONTANT,mouvement.getMontant(), Field.Store.YES));
         }
 
         writer.addDocument(doc);
+
     }
 
     private String parse(String mouvementType) {
@@ -80,6 +85,8 @@ public class Indexer {
         if(mouvementType.contains("RETRAIT DAB")) return "retrait";
         if(mouvementType.contains("PRLV")) return "prelevement";
         if(mouvementType.contains("VIR")) return "virement";
+        if(mouvementType.contains("COTIS")) return "cotisation";
+        if(mouvementType.contains("RET")) return "retrait";
         return null;
     }
 }

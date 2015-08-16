@@ -5,48 +5,32 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-/**
- * Created by manu on 28/07/2015.
- */
 public class ComputedPDF {
 
     private String brutText;
     private List<Mouvement> mouvements = new ArrayList<Mouvement>();
 
-    public ComputedPDF() {
-        this.brutText = brutText;
-    }
-
-    public List<Mouvement> getMouvements() {
-        return mouvements;
-    }
-
     public void process(String text) throws ParseException {
         List<String> intrestingPart = extractGoodPart(text);
 
         Iterator<String> stringIterator = intrestingPart.iterator();
-        String actualLine = "";
-        String nextLine = "";
+        String line = "";
+        Mouvement mouvement = new Mouvement();
         while (stringIterator.hasNext()){
-            Mouvement mouvement = new Mouvement();
+            line = stringIterator.next();
 
-            if(nextLine.isEmpty()){
-                actualLine = stringIterator.next();
+            if(startWithDate(line)){
+                if(mouvement.getBrutLine() != null){
+                    mouvement.compute();
+                    mouvements.add(mouvement);
+                }
+                mouvement = new Mouvement();
+                mouvement.setBrutLine(line);
             } else {
-                actualLine = nextLine;
+                mouvement.setBrutLine(mouvement.getBrutLine() + " " + line);
             }
-
-            if(stringIterator.hasNext()){
-                nextLine = stringIterator.next();
-            }
-
-            if(!startWithDate(nextLine)){
-                mouvement.setBrutLine(actualLine + " " + nextLine);
-                nextLine = "";
-            } else{
-                mouvement.setBrutLine(actualLine);
-            }
-
+        }
+        if(mouvement.getBrutLine() != null) {
             mouvement.compute();
             mouvements.add(mouvement);
         }
@@ -88,5 +72,13 @@ public class ComputedPDF {
             }
         }
         return false;
+    }
+
+    public ComputedPDF() {
+        this.brutText = brutText;
+    }
+
+    public List<Mouvement> getMouvements() {
+        return mouvements;
     }
 }
