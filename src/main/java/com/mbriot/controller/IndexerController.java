@@ -3,6 +3,8 @@ package com.mbriot.controller;
 import com.mbriot.indexer.ComputedPDF;
 import com.mbriot.indexer.Mouvement;
 import com.mbriot.lucene.Indexer;
+import com.mbriot.utils.Log;
+import com.mbriot.utils.TimeCounter;
 import org.apache.pdfbox.cos.COSDocument;
 import org.apache.pdfbox.pdfparser.PDFParser;
 import org.apache.pdfbox.pdmodel.PDDocument;
@@ -25,8 +27,6 @@ import java.util.List;
 @PropertySource("application.properties")
 public class IndexerController {
 
-    static final Logger LOG = LoggerFactory.getLogger(IndexerController.class);
-
     @Autowired
     Indexer indexer;
 
@@ -39,26 +39,51 @@ public class IndexerController {
     public @ResponseBody
     void index(){
 
+        TimeCounter totalIndexationTime = new TimeCounter();
+        TimeCounter extractBrutTextTime;
+        TimeCounter computeTextTime;
+        TimeCounter luceneIndexTime;
         File dirFile = new File(env.getProperty("path.to.files"));
 
         try {
+            totalIndexationTime.start();
             for(File file : dirFile.listFiles()){
+                //exclude .DS_Store file for mac OS
+                if(file.getName().equals(".DS_Store")) continue;
 
-                LOG.debug("process file " + file.getName());
-
+                Log.info("process file %s", file.getName());
+                extractBrutTextTime = new TimeCounter();
+                extractBrutTextTime.start();
                 String parsedText = extractBrutText(file);
+                extractBrutTextTime.stop();
+                Log.info("time to extract brut text for file %s : %d", file.getName(), extractBrutTextTime.getTime());
 
+                computeTextTime = new TimeCounter();
+                computeTextTime.start();
                 ComputedPDF computedPDF = new ComputedPDF();
                 computedPDF.process(parsedText);
                 addMouvements(computedPDF.getMouvements());
+                computeTextTime.stop();
+                Log.info("time to comput file %s : %d",file.getName(),computeTextTime.getTime());
             }
 
-            LOG.debug("start indexation of " + mouvements.size() + " mouvements");
+            totalIndexationTime.stop();
+            Log.info("all document computed in %d ms",totalIndexationTime.getTime());
+            totalIndexationTime.start();
+
+            luceneIndexTime = new TimeCounter();
+            luceneIndexTime.start();
+            Log.info("start indexation of %s mouvements",mouvements.size());
             indexer.indexMouvement(mouvements);
+            luceneIndexTime.stop();
+            Log.info("indexation done in %d ms",luceneIndexTime.getTime());
 
         } catch (Exception e) {
-            LOG.error("indexation failed ", e);
-            System.out.println("You failed to upload " + " => " + e.getMessage()) ;
+            Log.error(e,"indexation failed with error : %s", e.getMessage());
+            System.out.println("You failed to upload " + " => " + e.getStackTrace()) ;
+        } finally {
+            totalIndexationTime.stop();
+            Log.info("total indexation time : %d",totalIndexationTime.getTime());
         }
 
     }

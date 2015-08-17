@@ -1,9 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
 
-    <appender name="minuteRollingFileAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <property resource="application.properties" />
+
+    <appender name="consoleAppender" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <Pattern>.%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg %n
+            </Pattern>
+        </encoder>
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>TRACE</level>
+        </filter>
+    </appender>
+
+    <appender name="dailyRollingFileAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <File>${logdir}/application.log</File>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <FileNamePattern>/Users/manu/Desktop/creditMutDocuments/application.%d{yyyy-MM-dd_HH-mm}.log</FileNamePattern>
+            <FileNamePattern>${logdir}/application.%d{yyyy-MM-dd_HH-mm}.log</FileNamePattern>
             <maxHistory>30</maxHistory>
         </rollingPolicy>
 
@@ -13,11 +26,12 @@
     </appender>
 
     <root level="INFO">
-        <appender-ref ref="minuteRollingFileAppender" />
+        <appender-ref ref="dailyRollingFileAppender" />
     </root>
 
-    <logger name="com.mbriot">
-        <level value="DEBUG" />
-        <appender-ref ref="minuteRollingFileAppender"/>
+    <logger name="bankAccount" additivity="false">
+        <level value="${loglevel}" />
+        <appender-ref ref="dailyRollingFileAppender"/>
+        <appender-ref ref="consoleAppender"/>
     </logger>
 </configuration>

@@ -3,6 +3,7 @@ package com.mbriot.lucene;
 
 import com.mbriot.indexer.Mouvement;
 import com.mbriot.utils.FieldName;
+import com.mbriot.utils.Log;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
@@ -23,7 +24,6 @@ import java.nio.file.Paths;
 import java.util.List;
 
 public class Indexer {
-    static final Logger LOG = LoggerFactory.getLogger(Indexer.class);
 
     private String pathToIndex;
 
@@ -36,7 +36,7 @@ public class Indexer {
             iwc.setOpenMode(IndexWriterConfig.OpenMode.CREATE);
             writer = new IndexWriter(dir, iwc);
             for(Mouvement mouvement : mouvements){
-                LOG.debug("indexing mouvement : " + mouvement.toString());
+                Log.trace("indexing mouvement : %s",mouvement.toString());
                 indexDocs(writer, mouvement);
             }
         } catch (IOException io){
