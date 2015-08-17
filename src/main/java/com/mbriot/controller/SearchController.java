@@ -2,6 +2,8 @@ package com.mbriot.controller;
 
 import com.mbriot.indexer.Mouvement;
 import com.mbriot.lucene.Searcher;
+import com.mbriot.pojo.SearchResponse;
+import com.mbriot.utils.TimeCounter;
 import org.apache.lucene.document.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -22,8 +24,14 @@ public class SearchController {
 
     @RequestMapping(value="/search", method= RequestMethod.GET)
     public @ResponseBody
-    List<Mouvement> searchDocs(@RequestParam("query") String query) throws IOException {
-        List<Mouvement> mouvements= searcher.search(query);
-        return mouvements;
+    SearchResponse searchDocs(@RequestParam("query") String query) throws IOException {
+        TimeCounter searchTime = new TimeCounter();
+        searchTime.start();
+
+        SearchResponse searchResponse = searcher.search(query);
+
+        searchTime.stop();
+        searchResponse.setSearchTime(searchTime.getTime());
+        return searchResponse;
     }
 }

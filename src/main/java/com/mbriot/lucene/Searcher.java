@@ -1,6 +1,7 @@
 package com.mbriot.lucene;
 
 import com.mbriot.indexer.Mouvement;
+import com.mbriot.pojo.SearchResponse;
 import com.mbriot.utils.FieldName;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
@@ -20,7 +21,7 @@ public class Searcher {
 
     private String pathToIndex;
 
-    public List<Mouvement> search(String query) throws IOException {
+    public SearchResponse search(String query) throws IOException {
         IndexReader reader = DirectoryReader.open(FSDirectory.open(Paths.get(pathToIndex)));
         IndexSearcher searcher = new IndexSearcher(reader);
         QueryParser parser = new QueryParser(FieldName.DESCRIPTION,new StandardAnalyzer());
@@ -48,14 +49,22 @@ public class Searcher {
             }
         }
 
+        double totalAmount = 0.0;
         TopDocs hits = searcher.search(parsedQuery, 10000);
         List<Mouvement> mouvements = new ArrayList<Mouvement>();
         for(ScoreDoc scoreDoc : hits.scoreDocs){
             Document doc = searcher.doc(scoreDoc.doc);
             Mouvement mouvement = Mouvement.convert(doc);
+            totalAmount = totalAmount + mouvement.getMontant();
             mouvements.add(mouvement);
         }
-        return mouvements;
+
+        SearchResponse searchResponse = new SearchResponse();
+        searchResponse.setMouvements(mouvements);
+        searchResponse.setTotalHits(hits.totalHits);
+        searchResponse.setTotalAmount(Math.floor(totalAmount * 100) / 100);
+
+        return searchResponse;
     }
 
     private Query rewriteTermQuery(Query q) {

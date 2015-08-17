@@ -5,6 +5,7 @@ var indexerButton = $g('indexer-button');
 var searcherButton = $g('searcher-button');
 var query = $g('query');
 var responseTable = $g('response-table');
+var responseDetail = $g('response-detail');
 
 
 var indexerButtonAction = function() {
@@ -28,6 +29,8 @@ var searchDocs = function()
 {
     // remove all previous result
     while (responseTable.firstChild) {responseTable.removeChild(responseTable.firstChild);}
+    while (responseDetail.firstChild) {responseDetail.removeChild(responseDetail.firstChild);}
+
     var tr = document.createElement('tr');
     tr.appendChild(document.createElement('th'));
     tr.appendChild(document.createElement('th'));
@@ -45,9 +48,16 @@ var searchDocs = function()
         requestObj.onreadystatechange = function ()
         {
             if (requestObj.readyState == 4 && requestObj.status == 200) {
-                var mouvements = JSON.parse(requestObj.response);
+                var searchResponse = JSON.parse(requestObj.response);
+
+                var totalHits = searchResponse['totalHits'];
+                var searchTime = searchResponse['searchTime'];
+                var totalAmount = searchResponse['totalAmount'];
+                var titleResponse = totalHits + " mouvements in " + searchTime + "ms, amount : " + totalAmount + "€";
+                responseDetail.appendChild(document.createTextNode(titleResponse));
+
                 var mouvement;
-                while(mouvement = mouvements.pop()){
+                while(mouvement = searchResponse['mouvements'].pop()){
                     var tr = document.createElement('tr');
 
                     tr.appendChild( document.createElement('td') );
@@ -72,3 +82,4 @@ var searchDocs = function()
 
 indexerButton.addEventListener('click',indexerButtonAction,false);
 searcherButton.addEventListener('click',searchDocs,false);
+
