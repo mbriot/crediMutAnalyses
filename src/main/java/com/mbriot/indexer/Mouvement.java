@@ -26,6 +26,9 @@ public class Mouvement {
     private double montant = 0;
     private String description;
 
+    private static SimpleDateFormat fromStrDateFormater = new SimpleDateFormat("yyyyMMdd");
+    private static SimpleDateFormat toPrettyStrDateFormater = new SimpleDateFormat("dd/MM/yyyy");
+
     public void compute() throws ParseException {
         String[] splittedMouvement = brutLine.split("\\s+");
 
@@ -61,14 +64,16 @@ public class Mouvement {
         return datePart[2] + datePart[1] + datePart[0];
     }
 
-    public static Mouvement convert(Document doc){
+    public static Mouvement convert(Document doc) throws ParseException {
         Mouvement mouvement = new Mouvement();
         for(IndexableField field : doc.getFields()){
             if(field.name().equals(FieldName.TYPE)){
                 mouvement.setMouvementType(field.stringValue());
             }
             if(field.name().equals(FieldName.DATE)){
-                mouvement.setDate(field.stringValue());
+                Date date = fromStrDateFormater.parse(field.stringValue());
+                String prettyDate = toPrettyStrDateFormater.format(date);
+                mouvement.setDate(prettyDate);
             }
             if(field.name().equals(FieldName.MONTANT)){
                 mouvement.setMontant(Double.valueOf(field.stringValue()));

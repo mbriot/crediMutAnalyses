@@ -14,6 +14,7 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.text.ParseException;
 import java.util.List;
 
 @Controller
@@ -24,7 +25,7 @@ public class SearchController {
 
     @RequestMapping(value="/search", method= RequestMethod.GET)
     public @ResponseBody
-    SearchResponse searchDocs(@RequestParam("query") String query) throws IOException {
+    SearchResponse searchDocs(@RequestParam("query") String query) throws IOException, ParseException {
         TimeCounter searchTime = new TimeCounter();
         searchTime.start();
 

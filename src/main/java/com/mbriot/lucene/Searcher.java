@@ -14,6 +14,7 @@ import org.thymeleaf.expression.Sets;
 
 import java.io.IOException;
 import java.nio.file.Paths;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,7 +22,7 @@ public class Searcher {
 
     private String pathToIndex;
 
-    public SearchResponse search(String query) throws IOException {
+    public SearchResponse search(String query) throws IOException, ParseException {
         IndexReader reader = DirectoryReader.open(FSDirectory.open(Paths.get(pathToIndex)));
         IndexSearcher searcher = new IndexSearcher(reader);
         QueryParser parser = new QueryParser(FieldName.DESCRIPTION,new StandardAnalyzer());
