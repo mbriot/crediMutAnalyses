@@ -6,9 +6,10 @@ var searcherButton = $g('searcher-button');
 var query = $g('query');
 var responseTable = $g('response-table');
 var responseDetail = $g('response-detail');
-
+var indexationInformation = $g('indexation-information');
 
 var indexerButtonAction = function() {
+    indexationInformation.style["display"] = "inline";
     var xmlhttp=new XMLHttpRequest();
     xmlhttp.open("POST", 'http://localhost:8080/index');
     xmlhttp.onreadystatechange = function() {
@@ -16,6 +17,7 @@ var indexerButtonAction = function() {
             if(xmlhttp.status==400){
                 console.log('error');
             }else{
+                indexationInformation.style["display"] = "none";
                 console.log('ok')}
         }
     }
